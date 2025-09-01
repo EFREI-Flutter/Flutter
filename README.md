@@ -1,4 +1,4 @@
-# Efrei Todo (collab-ready)
+# Efrei Todo
 Lancer:
 1) flutter pub get
 2) flutter run
