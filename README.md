@@ -1,6 +1,10 @@
-# Efrei Todo
-Exécuter:
-1) Installer Flutter stable
-2) `flutter pub get`
-3) `flutter run`
-Compte: créez un compte via l'écran Inscription.
+# Efrei Todo (collab-ready)
+Lancer:
+1) flutter pub get
+2) flutter run
+
+Par défaut: stockage local et auth locale.
+Pour brancher Firebase plus tard, implémenter:
+- lib/src/services/firebase/firebase_auth_service.dart
+- lib/src/services/firebase/firebase_todo_repository.dart
+Puis remplacer les Local* par Firebase* dans main.dart.

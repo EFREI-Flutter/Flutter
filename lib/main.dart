@@ -10,12 +10,21 @@ import 'src/screens/reset_password.dart';
 import 'src/screens/home.dart';
 import 'src/screens/todo_form.dart';
 import 'src/screens/settings.dart';
+import 'src/services/interfaces/auth_service.dart';
+import 'src/services/interfaces/todo_repository.dart';
+import 'src/services/local/local_auth_service.dart';
+import 'src/services/local/local_todo_repository.dart';
+// To enable Firebase later, replace the two providers below with Firebase implementations:
+// import 'src/services/firebase/firebase_auth_service.dart';
+// import 'src/services/firebase/firebase_todo_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final authStore = AuthStore();
+  final AuthService authService = LocalAuthService();
+  final AuthStore authStore = AuthStore(authService);
   await authStore.init();
-  final todoStore = TodoStore(authStore);
+  final TodoRepository todoRepo = LocalTodoRepository();
+  final TodoStore todoStore = TodoStore(todoRepo, authStore);
   await todoStore.init();
   final themeStore = ThemeStore();
   await themeStore.init();
@@ -23,48 +32,20 @@ void main() async {
     initialLocation: '/',
     refreshListenable: authStore,
     routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const _Splash(),
-      ),
-      GoRoute(
-        path: '/signin',
-        builder: (context, state) => const SignInScreen(),
-      ),
-      GoRoute(
-        path: '/signup',
-        builder: (context, state) => const SignUpScreen(),
-      ),
-      GoRoute(
-        path: '/reset',
-        builder: (context, state) => const ResetPasswordScreen(),
-      ),
-      GoRoute(
-        path: '/home',
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: '/todo/new',
-        builder: (context, state) => const TodoFormScreen(),
-      ),
-      GoRoute(
-        path: '/todo/:id',
-        builder: (context, state) => TodoFormScreen(id: state.pathParameters['id']),
-      ),
-      GoRoute(
-        path: '/settings',
-        builder: (context, state) => const SettingsScreen(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const _Splash()),
+      GoRoute(path: '/signin', builder: (context, state) => const SignInScreen()),
+      GoRoute(path: '/signup', builder: (context, state) => const SignUpScreen()),
+      GoRoute(path: '/reset', builder: (context, state) => const ResetPasswordScreen()),
+      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      GoRoute(path: '/todo/new', builder: (context, state) => const TodoFormScreen()),
+      GoRoute(path: '/todo/:id', builder: (context, state) => TodoFormScreen(id: state.pathParameters['id'])),
+      GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
     ],
     redirect: (context, state) {
       final loggedIn = authStore.currentUserEmail != null;
       final goingToAuth = state.fullPath == '/signin' || state.fullPath == '/signup' || state.fullPath == '/reset';
-      if (!loggedIn && state.fullPath != '/signin' && state.fullPath != '/signup' && state.fullPath != '/reset') {
-        return '/signin';
-      }
-      if (loggedIn && goingToAuth) {
-        return '/home';
-      }
+      if (!loggedIn && state.fullPath != '/signin' && state.fullPath != '/signup' && state.fullPath != '/reset') return '/signin';
+      if (loggedIn && goingToAuth) return '/home';
       return null;
     },
   );

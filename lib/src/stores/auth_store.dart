@@ -1,18 +1,19 @@
 import 'package:flutter/foundation.dart';
-import '../services/services.dart';
+import '../services/interfaces/auth_service.dart';
 
 class AuthStore extends ChangeNotifier {
-  final LocalAuthService _auth = LocalAuthService();
+  final AuthService auth;
   String? currentUserEmail;
   bool isLoading = false;
+  AuthStore(this.auth);
   Future<void> init() async {
-    currentUserEmail = await _auth.currentUserEmail();
+    currentUserEmail = await auth.currentUserEmail();
   }
   Future<void> signIn(String email, String password) async {
     isLoading = true;
     notifyListeners();
     try {
-      await _auth.signIn(email, password);
+      await auth.signIn(email, password);
       currentUserEmail = email;
     } finally {
       isLoading = false;
@@ -23,7 +24,7 @@ class AuthStore extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      await _auth.signUp(email, password);
+      await auth.signUp(email, password);
       currentUserEmail = email;
     } finally {
       isLoading = false;
@@ -31,10 +32,10 @@ class AuthStore extends ChangeNotifier {
     }
   }
   Future<void> resetPassword(String email) async {
-    await _auth.resetPassword(email);
+    await auth.resetPassword(email);
   }
   Future<void> signOut() async {
-    await _auth.signOut();
+    await auth.signOut();
     currentUserEmail = null;
     notifyListeners();
   }

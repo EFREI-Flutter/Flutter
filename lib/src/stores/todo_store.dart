@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import '../models.dart';
-import '../services/services.dart';
+import '../services/interfaces/todo_repository.dart';
 import 'auth_store.dart';
 
 class TodoStore extends ChangeNotifier {
-  final LocalTodoRepository _repo = LocalTodoRepository();
+  final TodoRepository repo;
   final AuthStore auth;
   List<Todo> todos = [];
   bool isBusy = false;
-  TodoStore(this.auth);
+  TodoStore(this.repo, this.auth);
   Future<void> init() async {
     if (auth.currentUserEmail != null) {
       await refresh();
@@ -19,7 +19,7 @@ class TodoStore extends ChangeNotifier {
     isBusy = true;
     notifyListeners();
     try {
-      todos = await _repo.fetchAll(auth.currentUserEmail!);
+      todos = await repo.fetchAll(auth.currentUserEmail!);
     } finally {
       isBusy = false;
       notifyListeners();
@@ -27,22 +27,22 @@ class TodoStore extends ChangeNotifier {
   }
   Future<void> add(String title, String? notes) async {
     if (auth.currentUserEmail == null) return;
-    await _repo.add(auth.currentUserEmail!, title, notes);
+    await repo.add(auth.currentUserEmail!, title, notes);
     await refresh();
   }
   Future<void> update(Todo todo) async {
-    await _repo.update(todo);
+    await repo.update(todo);
     await refresh();
   }
   Future<void> delete(String id) async {
-    await _repo.delete(id);
+    await repo.delete(id);
     await refresh();
   }
   Future<void> toggle(String id) async {
-    await _repo.toggle(id);
+    await repo.toggle(id);
     await refresh();
   }
   Future<Todo?> byId(String id) async {
-    return await _repo.getById(id);
+    return await repo.getById(id);
   }
 }
