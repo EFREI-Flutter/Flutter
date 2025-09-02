@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:collection/collection.dart';
 import '../../../src/services/interfaces/todo_repository.dart' as c;
 import '../../../src/models.dart' as cmodel;
 import '../models/todo.dart';

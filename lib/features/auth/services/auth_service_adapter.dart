@@ -6,7 +6,6 @@ import 'i_auth_service.dart';
 class AuthServiceAdapter implements IAuthService {
   final c.AuthService _inner;
   final _ctrl = StreamController<AppUser?>.broadcast();
-  StreamSubscription<String?>? _sub;
   String? _currentEmail;
   AuthServiceAdapter(this._inner) {
     // no direct stream in C; emulate with polling on demand
