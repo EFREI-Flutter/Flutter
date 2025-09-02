@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../stores/auth_store.dart';
 import '../stores/todo_store.dart';
-import '../models.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<TodoStore>().refresh());
+    WidgetsBinding.instance.addPostFrameCallback((_) { if (!mounted) return; context.read<TodoStore>().refresh(); });
   }
   @override
   Widget build(BuildContext context) {

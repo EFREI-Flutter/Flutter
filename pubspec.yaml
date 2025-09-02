@@ -1,5 +1,5 @@
 name: efrei_todo
-description: Todo app with local auth and storage
+description: Todo app collab-ready
 publish_to: "none"
 version: 1.0.0+1
 

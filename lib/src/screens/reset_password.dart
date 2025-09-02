@@ -36,12 +36,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     if (!formKey.currentState!.validate()) return;
                     try {
                       await auth.resetPassword(email.text.trim());
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email traité')));
-                        context.go('/signin');
-                      }
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email traité')));
+                      context.go('/signin');
                     } catch (_) {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email inconnu')));
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email inconnu')));
                     }
                   },
                   child: const Text('Envoyer'),

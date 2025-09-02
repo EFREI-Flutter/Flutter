@@ -44,9 +44,11 @@ class _SignInScreenState extends State<SignInScreen> {
                     if (!formKey.currentState!.validate()) return;
                     try {
                       await auth.signIn(email.text.trim(), password.text);
-                      if (mounted) context.go('/home');
+                      if (!mounted) return;
+                      context.go('/home');
                     } catch (_) {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Identifiants invalides')));
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Identifiants invalides')));
                     }
                   },
                   child: auth.isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Se connecter'),

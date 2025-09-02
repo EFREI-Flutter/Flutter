@@ -14,9 +14,6 @@ import 'src/services/interfaces/auth_service.dart';
 import 'src/services/interfaces/todo_repository.dart';
 import 'src/services/local/local_auth_service.dart';
 import 'src/services/local/local_todo_repository.dart';
-// To enable Firebase later, replace the two providers below with Firebase implementations:
-// import 'src/services/firebase/firebase_auth_service.dart';
-// import 'src/services/firebase/firebase_todo_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,14 +79,23 @@ class _App extends StatelessWidget {
   }
 }
 
-class _Splash extends StatelessWidget {
+class _Splash extends StatefulWidget {
   const _Splash({super.key});
   @override
-  Widget build(BuildContext context) {
-    Future.microtask(() {
+  State<_Splash> createState() => _SplashState();
+}
+class _SplashState extends State<_Splash> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final email = context.read<AuthStore>().currentUserEmail;
       context.go(email == null ? '/signin' : '/home');
     });
+  }
+  @override
+  Widget build(BuildContext context) {
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

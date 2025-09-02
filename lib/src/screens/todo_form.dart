@@ -20,7 +20,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (widget.id != null) {
         current = await context.read<TodoStore>().byId(widget.id!);
         if (current != null) {
@@ -28,6 +28,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
           notes.text = current!.notes ?? '';
         }
       }
+      if (!mounted) return;
       setState(() { loading = false; });
     });
   }
@@ -66,7 +67,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                         } else {
                           await store.update(current!.copyWith(title: title.text.trim(), notes: notes.text.trim().isEmpty ? null : notes.text.trim()));
                         }
-                        if (mounted) context.go('/home');
+                        if (!mounted) return;
+                        context.go('/home');
                       },
                       child: const Text('Enregistrer'),
                     ),
@@ -76,7 +78,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                     child: ElevatedButton(
                       onPressed: () async {
                         await store.delete(current!.id);
-                        if (mounted) context.go('/home');
+                        if (!mounted) return;
+                        context.go('/home');
                       },
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
                       child: const Text('Supprimer'),

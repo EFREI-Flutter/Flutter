@@ -52,9 +52,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     if (!formKey.currentState!.validate()) return;
                     try {
                       await auth.signUp(email.text.trim(), password.text);
-                      if (mounted) context.go('/home');
+                      if (!mounted) return;
+                      context.go('/home');
                     } catch (_) {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email déjà utilisé')));
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email déjà utilisé')));
                     }
                   },
                   child: auth.isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Créer le compte'),
