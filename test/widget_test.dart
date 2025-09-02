@@ -4,7 +4,6 @@ import 'package:efrei_todo/main.dart' as app;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
   testWidgets('App starts and shows sign-in', (tester) async {
     SharedPreferences.setMockInitialValues({});
     app.main();
