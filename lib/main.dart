@@ -58,7 +58,7 @@ void main() async {
 
 class _App extends StatelessWidget {
   final GoRouter router;
-  const _App({required this.router, super.key});
+  const _App({required this.router});
   @override
   Widget build(BuildContext context) {
     final themeStore = context.watch<ThemeStore>();
@@ -80,7 +80,7 @@ class _App extends StatelessWidget {
 }
 
 class _Splash extends StatefulWidget {
-  const _Splash({super.key});
+  const _Splash();
   @override
   State<_Splash> createState() => _SplashState();
 }

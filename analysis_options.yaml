@@ -3,4 +3,3 @@ linter:
   rules:
     avoid_print: true
     use_build_context_synchronously: false
-    unused_element_parameter: false
