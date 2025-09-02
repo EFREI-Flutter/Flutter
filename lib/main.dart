@@ -1,38 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import 'src/stores/auth_store.dart';
+import 'src/stores/todo_store.dart';
+import 'src/stores/theme_store.dart';
+import 'src/screens/sign_in.dart';
+import 'src/screens/sign_up.dart';
+import 'src/screens/reset_password.dart';
+import 'src/screens/home.dart';
+import 'src/screens/todo_form.dart';
+import 'src/screens/settings.dart';
+import 'src/services/interfaces/auth_service.dart';
+import 'src/services/interfaces/todo_repository.dart';
+import 'src/services/local/local_auth_service.dart';
+import 'src/services/local/local_todo_repository.dart';
 
-import 'app_router.dart';
-import 'features/auth/services/i_auth_service.dart';
-import 'features/auth/services/auth_service_fake.dart';
-import 'features/auth/store/auth_store.dart';
-import 'features/todo/services/i_todo_repository.dart';
-import 'features/todo/services/todo_repository_fake.dart';
-import 'features/todo/store/todo_store.dart';
-
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  final AuthService authService = LocalAuthService();
+  final AuthStore authStore = AuthStore(authService);
+  await authStore.init();
+  final TodoRepository todoRepo = LocalTodoRepository();
+  final TodoStore todoStore = TodoStore(todoRepo, authStore);
+  await todoStore.init();
+  final themeStore = ThemeStore();
+  await themeStore.init();
+  final router = GoRouter(
+    initialLocation: '/',
+    refreshListenable: authStore,
+    routes: [
+      GoRoute(path: '/', builder: (context, state) => const _Splash()),
+      GoRoute(path: '/signin', builder: (context, state) => const SignInScreen()),
+      GoRoute(path: '/signup', builder: (context, state) => const SignUpScreen()),
+      GoRoute(path: '/reset', builder: (context, state) => const ResetPasswordScreen()),
+      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      GoRoute(path: '/todo/new', builder: (context, state) => const TodoFormScreen()),
+      GoRoute(path: '/todo/:id', builder: (context, state) => TodoFormScreen(id: state.pathParameters['id'])),
+      GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
+    ],
+    redirect: (context, state) {
+      final loggedIn = authStore.currentUserEmail != null;
+      final goingToAuth = state.fullPath == '/signin' || state.fullPath == '/signup' || state.fullPath == '/reset';
+      if (!loggedIn && state.fullPath != '/signin' && state.fullPath != '/signup' && state.fullPath != '/reset') return '/signin';
+      if (loggedIn && goingToAuth) return '/home';
+      return null;
+    },
+  );
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider.value(value: authStore),
+      ChangeNotifierProvider.value(value: todoStore),
+      ChangeNotifierProvider.value(value: themeStore),
+    ],
+    child: _App(router: router),
+  ));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class _App extends StatelessWidget {
+  final GoRouter router;
+  const _App({required this.router});
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<IAuthService>(create: (_) => AuthServiceFake()),
-        Provider<ITodoRepository>(create: (_) => TodoRepositoryFake()),
-        ChangeNotifierProvider(create: (ctx) => AuthStore(ctx.read<IAuthService>())),
-        ChangeNotifierProvider(create: (ctx) => TodoStore(ctx.read<ITodoRepository>(), ctx.read<AuthStore>())),
-        Provider<AppRouter>(create: (ctx) => AppRouter(ctx.read<AuthStore>())),
-      ],
-      child: Builder(
-        builder: (ctx) => MaterialApp.router(
-          title: 'EFREI Todo',
-          theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
-          routerConfig: ctx.read<AppRouter>().router,
-        ),
+    final themeStore = context.watch<ThemeStore>();
+    return MaterialApp.router(
+      routerConfig: router,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        useMaterial3: true,
+        brightness: Brightness.light,
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo, brightness: Brightness.dark),
+        useMaterial3: true,
+        brightness: Brightness.dark,
+      ),
+      themeMode: themeStore.mode,
     );
+  }
+}
+
+class _Splash extends StatefulWidget {
+  const _Splash();
+  @override
+  State<_Splash> createState() => _SplashState();
+}
+class _SplashState extends State<_Splash> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final email = context.read<AuthStore>().currentUserEmail;
+      context.go(email == null ? '/signin' : '/home');
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
