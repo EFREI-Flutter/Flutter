@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_relative_lib_imports
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -16,11 +17,11 @@ void main() {
     final todoInput = find.text('Nouvelle tâche...');
     final addButton = find.text('Ajouter');
 
-    //  Connexion
-    final emailField   = find.widgetWithText(TextField, 'Email');
-    final pwdField     = find.widgetWithText(TextField, 'Mot de passe');
+    // Connexion
+    final emailField = find.widgetWithText(TextField, 'Email');
+    final pwdField   = find.widgetWithText(TextField, 'Mot de passe');
 
-    final isTodo = todoInput.evaluate().isNotEmpty && addButton.evaluate().isNotEmpty;
+    final isTodo  = todoInput.evaluate().isNotEmpty && addButton.evaluate().isNotEmpty;
     final isLogin = emailField.evaluate().isNotEmpty && pwdField.evaluate().isNotEmpty;
 
     expect(isTodo || isLogin, isTrue, reason: 'Ni Todo ni Connexion détecté');
@@ -29,7 +30,6 @@ void main() {
       expect(todoInput, findsOneWidget);
       expect(addButton, findsOneWidget);
     }
-
     if (isLogin) {
       expect(emailField, findsOneWidget);
       expect(pwdField, findsOneWidget);
