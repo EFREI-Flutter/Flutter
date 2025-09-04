@@ -17,13 +17,16 @@ class Todo {
 
   factory Todo.fromDoc(DocumentSnapshot<Map<String, dynamic>> d) {
     final m = d.data()!;
+    final ts = m['createdAt'];
+    final due = m['dueAt'];
+
     return Todo(
       id: d.id,
       uid: m['uid'] as String,
       title: m['title'] as String,
       done: (m['done'] as bool?) ?? false,
-      createdAt: (m['createdAt'] as Timestamp).toDate(),
-      dueAt: (m['dueAt'] as Timestamp?)?.toDate(),
+      createdAt: ts is Timestamp ? ts.toDate() : DateTime.now(),
+      dueAt: due is Timestamp ? due.toDate() : null,
     );
   }
 
