@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 
-// ---------- MODELE / REPO MINIMAUX POUR TEST ----------
 class Todo {
   final String id, uid, title;
   final bool done;
@@ -20,12 +19,15 @@ class Todo {
 
   factory Todo.fromDoc(DocumentSnapshot<Map<String, dynamic>> d) {
     final m = d.data()!;
+    final ts = m['createdAt'];
+    final created = ts is Timestamp ? ts.toDate() : DateTime.now();
+
     return Todo(
       id: d.id,
       uid: m['uid'] as String,
       title: m['title'] as String,
       done: (m['done'] as bool?) ?? false,
-      createdAt: (m['createdAt'] as Timestamp).toDate(),
+      createdAt: created,
     );
   }
 }
@@ -54,7 +56,6 @@ class FirestoreTodoRepo {
   Future<void> toggleDone(String id, bool done) => _col.doc(id).update({'done': done});
   Future<void> delete(String id) => _col.doc(id).delete();
 }
-// -------------------------------------------------------
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -96,22 +97,19 @@ class _SmokeTestPageState extends State<SmokeTestPage> {
     _signInTestUser();
   }
 
-  // ---------- METHODE MODIFIEE ----------
   Future<void> _signInTestUser() async {
     setState(() { _busy = true; _error = null; });
 
     try {
-      const email = 'test@efrei.fr';  // ⚠️ change si tu veux un autre mail
-      const pass  = 'Passw0rd123!';
+      const email = 'test@test.com';  
+      const pass  = 'tester';
 
       try {
         await _auth.signInWithEmailAndPassword(email: email, password: pass);
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
-          // Crée l'utilisateur si absent
           await _auth.createUserWithEmailAndPassword(email: email, password: pass);
         } else if (e.code == 'invalid-credential' || e.code == 'wrong-password') {
-          // Utilisateur existe mais mauvais mot de passe → crée un nouvel utilisateur unique
           final uniqueEmail = 'test+${DateTime.now().microsecondsSinceEpoch}@efrei.fr';
           await _auth.createUserWithEmailAndPassword(email: uniqueEmail, password: pass);
         } else {
@@ -128,7 +126,6 @@ class _SmokeTestPageState extends State<SmokeTestPage> {
       setState(() => _busy = false);
     }
   }
-  // --------------------------------------
 
   @override
   Widget build(BuildContext context) {
