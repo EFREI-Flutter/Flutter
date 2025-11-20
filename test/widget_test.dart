@@ -1,13 +1,11 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:efrei_todo/main.dart' as app;
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('App starts and shows sign-in', (tester) async {
-    SharedPreferences.setMockInitialValues({});
+  testWidgets('App starts and shows todo home', (tester) async {
     app.main();
     await tester.pumpAndSettle();
-    expect(find.text('Connexion'), findsOneWidget);
+    expect(find.text('Mes tâches'), findsOneWidget);
   });
 }

@@ -1,7 +1,8 @@
+import 'package:efrei_todo/features/auth/store/auth_store.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../stores/auth_store.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -13,6 +14,32 @@ class _SignInScreenState extends State<SignInScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  bool _submitting = false;
+
+  Future<void> _submit(AuthStore auth) async {
+    if (!mounted || _submitting) return;
+    setState(() => _submitting = true);
+    try {
+      if (!formKey.currentState!.validate()) return;
+      await auth.signIn(email.text.trim(), password.text);
+      if (!mounted) return;
+      context.go('/home');
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException(signIn): ${e.code} - ${e.message}');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? e.code)),
+      );
+    } catch (e, stack) {
+      debugPrint('Unexpected sign-in error: $e');
+      debugPrintStack(stackTrace: stack);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Identifiants invalides')));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthStore>();
@@ -40,17 +67,7 @@ class _SignInScreenState extends State<SignInScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: auth.isLoading ? null : () async {
-                    if (!formKey.currentState!.validate()) return;
-                    try {
-                      await auth.signIn(email.text.trim(), password.text);
-                      if (!mounted) return;
-                      context.go('/home');
-                    } catch (_) {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Identifiants invalides')));
-                    }
-                  },
+                  onPressed: (auth.isLoading || _submitting) ? null : () => _submit(auth),
                   child: auth.isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Se connecter'),
                 ),
               ),
@@ -69,3 +86,5 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 }
+
+
