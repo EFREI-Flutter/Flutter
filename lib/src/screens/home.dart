@@ -1,7 +1,8 @@
+import 'package:efrei_todo/features/auth/store/auth_store.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../stores/auth_store.dart';
+
 import '../stores/todo_store.dart';
 
 class HomeScreen extends StatefulWidget {
