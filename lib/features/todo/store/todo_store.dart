@@ -6,7 +6,7 @@ import '../services/i_todo_repository.dart';
 
 class TodoStoreB extends ChangeNotifier {
   final ITodoRepository repo;
-  final AuthStoreB auth;
+  final AuthStore auth;
   StreamSubscription<List<Todo>>? _sub;
   List<Todo> items = [];
   bool isBusy = false;
