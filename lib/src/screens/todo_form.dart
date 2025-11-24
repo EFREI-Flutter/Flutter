@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../stores/todo_store.dart';
+
 import '../models.dart';
+import '../stores/todo_store.dart';
 
 class TodoFormScreen extends StatefulWidget {
   final String? id;
+
   const TodoFormScreen({this.id, super.key});
+
   @override
   State<TodoFormScreen> createState() => _TodoFormScreenState();
 }
@@ -15,8 +18,10 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
   final title = TextEditingController();
   final notes = TextEditingController();
   final formKey = GlobalKey<FormState>();
+
   Todo? current;
   bool loading = true;
+
   @override
   void initState() {
     super.initState();
@@ -29,68 +34,140 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
         }
       }
       if (!mounted) return;
-      setState(() { loading = false; });
+      setState(() {
+        loading = false;
+      });
     });
   }
+
+  @override
+  void dispose() {
+    title.dispose();
+    notes.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (!formKey.currentState!.validate()) return;
+    final store = context.read<TodoStore>();
+    final trimmedNotes = notes.text.trim().isEmpty ? null : notes.text.trim();
+
+    if (current == null) {
+      await store.add(title.text.trim(), trimmedNotes);
+    } else {
+      await store.update(
+        current!.copyWith(
+          title: title.text.trim(),
+          notes: trimmedNotes,
+        ),
+      );
+    }
+
+    if (!mounted) return;
+    context.go('/home');
+  }
+
+  Future<void> _delete() async {
+    if (current == null) return;
+    final store = context.read<TodoStore>();
+    await store.delete(current!.id);
+    if (!mounted) return;
+    context.go('/home');
+  }
+
   @override
   Widget build(BuildContext context) {
-    final store = context.watch<TodoStore>();
+    final isEditing = current != null;
+
     return Scaffold(
-      appBar: AppBar(title: Text(current == null ? 'Nouvelle tâche' : 'Modifier la tâche')),
-      body: loading ? const Center(child: CircularProgressIndicator()) : Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: title,
-                decoration: const InputDecoration(labelText: 'Titre'),
-                validator: (v) => v != null && v.trim().isNotEmpty ? null : 'Titre obligatoire',
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: notes,
-                decoration: const InputDecoration(labelText: 'Notes'),
-                minLines: 2,
-                maxLines: 5,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (!formKey.currentState!.validate()) return;
-                        if (current == null) {
-                          await store.add(title.text.trim(), notes.text.trim().isEmpty ? null : notes.text.trim());
-                        } else {
-                          await store.update(current!.copyWith(title: title.text.trim(), notes: notes.text.trim().isEmpty ? null : notes.text.trim()));
-                        }
-                        if (!mounted) return;
-                        context.go('/home');
-                      },
-                      child: const Text('Enregistrer'),
-                    ),
-                  ),
-                  if (current != null) const SizedBox(width: 12),
-                  if (current != null) Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await store.delete(current!.id);
-                        if (!mounted) return;
-                        context.go('/home');
-                      },
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                      child: const Text('Supprimer'),
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
+      appBar: AppBar(
+        title: Text(isEditing ? 'Modifier la tâche' : 'Nouvelle tâche'),
       ),
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextFormField(
+                                controller: title,
+                                decoration: const InputDecoration(
+                                  labelText: 'Titre',
+                                  prefixIcon: Icon(Icons.title),
+                                ),
+                                validator: (v) => v != null && v.trim().isNotEmpty
+                                    ? null
+                                    : 'Titre obligatoire',
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 14),
+                                    child: Icon(
+                                      Icons.notes_outlined,
+                                      size: 22,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: notes,
+                                      minLines: 3,
+                                      maxLines: 6,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Notes',
+                                        alignLabelWithHint: true,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: _save,
+                                      child: const Text('Enregistrer'),
+                                    ),
+                                  ),
+                                  if (isEditing) ...[
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: _delete,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red,
+                                          foregroundColor: Colors.white,
+                                        ),
+                                        child: const Text('Supprimer'),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
     );
   }
 }
