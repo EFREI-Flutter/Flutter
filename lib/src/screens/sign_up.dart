@@ -1,10 +1,12 @@
+import 'package:efrei_todo/features/auth/store/auth_store.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../stores/auth_store.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
@@ -14,6 +16,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final password = TextEditingController();
   final confirm = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  bool _submitting = false;
+
+  Future<void> _submit(AuthStore auth) async {
+    if (!mounted || _submitting) return;
+    setState(() => _submitting = true);
+    try {
+      if (!formKey.currentState!.validate()) return;
+      await auth.signUp(email.text.trim(), password.text);
+      if (!mounted) return;
+      context.go('/home');
+    } on FirebaseAuthException catch (e) {
+      debugPrint('FirebaseAuthException(signUp): ${e.code} - ${e.message}');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? e.code)),
+      );
+    } catch (e, stack) {
+      debugPrint('Unexpected sign-up error: $e');
+      debugPrintStack(stackTrace: stack);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email deja utilise')));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthStore>();
@@ -35,7 +63,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 controller: password,
                 decoration: const InputDecoration(labelText: 'Mot de passe'),
                 obscureText: true,
-                validator: (v) => v != null && v.length >= 6 ? null : '6 caractères minimum',
+                validator: (v) => v != null && v.length >= 6 ? null : '6 caracteres minimum',
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -48,18 +76,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: auth.isLoading ? null : () async {
-                    if (!formKey.currentState!.validate()) return;
-                    try {
-                      await auth.signUp(email.text.trim(), password.text);
-                      if (!mounted) return;
-                      context.go('/home');
-                    } catch (_) {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email déjà utilisé')));
-                    }
-                  },
-                  child: auth.isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Créer le compte'),
+                  onPressed: (auth.isLoading || _submitting) ? null : () => _submit(auth),
+                  child: auth.isLoading
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Creer le compte'),
                 ),
               ),
             ],
@@ -69,3 +89,5 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
+
+
