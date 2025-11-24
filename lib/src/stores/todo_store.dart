@@ -1,48 +1,87 @@
+import 'dart:async';
+
+import 'package:efrei_todo/features/auth/store/auth_store.dart';
 import 'package:flutter/foundation.dart';
+
 import '../models.dart';
 import '../services/interfaces/todo_repository.dart';
-import 'auth_store.dart';
 
 class TodoStore extends ChangeNotifier {
   final TodoRepository repo;
   final AuthStore auth;
   List<Todo> todos = [];
   bool isBusy = false;
+  StreamSubscription<List<Todo>>? _sub;
   TodoStore(this.repo, this.auth);
+
   Future<void> init() async {
-    if (auth.currentUserEmail != null) {
-      await refresh();
-    }
+    auth.addListener(_handleAuthChange);
+    await _bindStream();
   }
+
+  Future<void> _bindStream() async {
+    await _sub?.cancel();
+    final userId = auth.currentUserId;
+    if (userId == null) {
+      todos = [];
+      notifyListeners();
+      return;
+    }
+    isBusy = true;
+    notifyListeners();
+    _sub = repo.watchAll(userId).listen((list) {
+      todos = list;
+      isBusy = false;
+      notifyListeners();
+    });
+  }
+
+  void _handleAuthChange() {
+    unawaited(_bindStream());
+  }
+
   Future<void> refresh() async {
-    if (auth.currentUserEmail == null) return;
+    final userId = auth.currentUserId;
+    if (userId == null) return;
     isBusy = true;
     notifyListeners();
     try {
-      todos = await repo.fetchAll(auth.currentUserEmail!);
+      todos = await repo.fetchAll(userId);
     } finally {
       isBusy = false;
       notifyListeners();
     }
   }
+
   Future<void> add(String title, String? notes) async {
-    if (auth.currentUserEmail == null) return;
-    await repo.add(auth.currentUserEmail!, title, notes);
-    await refresh();
+    final userId = auth.currentUserId;
+    if (userId == null) return;
+    await repo.add(userId, title, notes);
   }
+
   Future<void> update(Todo todo) async {
     await repo.update(todo);
-    await refresh();
   }
+
   Future<void> delete(String id) async {
     await repo.delete(id);
-    await refresh();
   }
+
   Future<void> toggle(String id) async {
     await repo.toggle(id);
-    await refresh();
   }
+
   Future<Todo?> byId(String id) async {
+    for (final todo in todos) {
+      if (todo.id == id) return todo;
+    }
     return await repo.getById(id);
+  }
+
+  @override
+  void dispose() {
+    auth.removeListener(_handleAuthChange);
+    _sub?.cancel();
+    super.dispose();
   }
 }
