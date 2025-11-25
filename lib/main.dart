@@ -73,24 +73,135 @@ void main() async {
   ));
 }
 
+
 class _App extends StatelessWidget {
   final GoRouter router;
+
   const _App({required this.router});
+
   @override
   Widget build(BuildContext context) {
     final themeStore = context.watch<ThemeStore>();
+
+    final colorSchemeLight = ColorScheme.fromSeed(
+      seedColor: const Color(0xFF6750A4),
+      brightness: Brightness.light,
+    );
+
+    final colorSchemeDark = ColorScheme.fromSeed(
+      seedColor: const Color(0xFF6750A4),
+      brightness: Brightness.dark,
+    );
+
+    ThemeData buildLightTheme() {
+      final colorScheme = colorSchemeLight;
+
+      return ThemeData(
+        useMaterial3: true,
+        colorScheme: colorScheme,
+        scaffoldBackgroundColor: const Color(0xFFF7F7FA),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: colorScheme.onSurface,
+          elevation: 0,
+          shadowColor: Colors.black.withValues(alpha:0.05),
+          surfaceTintColor: Colors.transparent,
+          centerTitle: false,
+          titleTextStyle: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        cardTheme: CardThemeData(
+          elevation: 1,
+          color: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.black.withValues(alpha:0.05),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: colorScheme.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 3,
+        ),
+        checkboxTheme: CheckboxThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          fillColor: WidgetStateProperty.resolveWith(
+            (states) {
+              if (states.contains(WidgetState.selected)) {
+                return colorScheme.primary;
+              }
+              return Colors.transparent;
+            },
+          ),
+          checkColor: WidgetStateProperty.all(Colors.white),
+          side: BorderSide(color: colorScheme.primary, width: 2),
+        ),
+        listTileTheme: ListTileThemeData(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          iconColor: colorScheme.primary,
+          textColor: Colors.black87,
+          titleTextStyle: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+          subtitleTextStyle: TextStyle(
+            fontSize: 14,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          hintStyle: TextStyle(color: Colors.grey.shade500),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: colorScheme.primary, width: 2),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      );
+    }
+
+    ThemeData buildDarkTheme() {
+      return ThemeData(
+        useMaterial3: true,
+        colorScheme: colorSchemeDark,
+      );
+    }
+
     return MaterialApp.router(
       routerConfig: router,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-        brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo, brightness: Brightness.dark),
-        useMaterial3: true,
-        brightness: Brightness.dark,
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
       themeMode: themeStore.mode,
     );
   }
@@ -98,9 +209,11 @@ class _App extends StatelessWidget {
 
 class _Splash extends StatefulWidget {
   const _Splash();
+
   @override
   State<_Splash> createState() => _SplashState();
 }
+
 class _SplashState extends State<_Splash> {
   @override
   void initState() {
@@ -111,8 +224,13 @@ class _SplashState extends State<_Splash> {
       context.go(email == null ? '/signin' : '/home');
     });
   }
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
 }
