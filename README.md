@@ -1,41 +1,40 @@
+# 📝 EFREI Todo — Application Flutter
 
-# 📌 README.md — Application Flutter Todo List
+Application Flutter complète réalisée dans le cadre du module  
+**Framework 1 (Flutter)** de l’EFREI.
 
-# 📝 EFREI Todo — Application Flutter  
-Application de gestion de tâches réalisée dans le cadre du module **Framework 1 (Flutter)** à l’EFREI.
+---
 
-Ce projet met en œuvre :
+## ✨ Fonctionnalités
 
-- Flutter & Material 3  
-- State management avec **Provider**  
-- Navigation avancée avec **GoRouter**  
-- Thème **clair / sombre** persistant  
-- CRUD complet des tâches  
-- Authentification simple (login / logout)  
-- UI moderne & responsive, incluant **NavigationRail**  
-
-## ⚙️ Fonctionnalités principales
-
-### 🔐 Authentification  
+### 🔐 Authentification (Firebase Auth)
+- Création de compte  
 - Connexion  
 - Déconnexion  
+- Reset password  
 - Redirection automatique selon l’état utilisateur  
 
-### ✅ Gestion des tâches  
+### 🗒️ Gestion des tâches (Local store)
 - Ajouter une tâche  
-- Modifier une tâche existante  
-- Supprimer une tâche (Swipe → Dismissible)  
-- Marquer une tâche comme terminée  
-- Résumé du nombre total / restantes / terminées  
-- Persistance locale ou via store  
+- Modifier une tâche  
+- Supprimer une tâche  
+- Marquer comme terminée  
+- Affichage des notes  
+- Dismissible pour supprimer rapidement  
 
-### 🎨 Thème & UI  
+### 🎨 Thème & UI
 - Thème clair / sombre  
-- Sauvegarde du thème dans **SharedPreferences**  
-- Design Material 3  
-- UI moderne avec Cards, icônes, animations  
-- Navigation **NavigationRail** sur toutes les pages  
-- Mise en page responsive web/mobile  
+- Persisté avec **SharedPreferences**  
+- Material 3 / UI moderne  
+- NavigationRail sur toutes les pages  
+- Pages responsive web + mobile  
+
+### 🌐 GoRouter (Navigation)
+- Navigation déclarative  
+- Routes propres  
+- Redirections selon authentication state  
+
+---
 
 ## 🏗️ Architecture du projet
 
@@ -43,28 +42,58 @@ Ce projet met en œuvre :
 lib/
 ├─ features/
 │   ├─ auth/
-│   │   ├─ screens/
+│   │   ├─ models/
+│   │   ├─ services/
 │   │   ├─ store/
-│   │   └─ widgets/
+│   │   └─ écrans sign_in, sign_up, reset_password
+│   ├─ todo/
+│       ├─ models/
+│       ├─ services/
+│       └─ store/
 │
-├─ stores/
-│   ├─ auth_store.dart
-│   ├─ todo_store.dart
-│   └─ theme_store.dart
+├─ src/
+│   ├─ screens/
+│   │   ├─ home.dart
+│   │   ├─ todo_form.dart
+│   │   ├─ settings.dart
+│   │   ├─ sign_in.dart
+│   │   ├─ sign_up.dart
+│   │   └─ reset_password.dart
+│   ├─ services/
+│   │   ├─ firebase/
+│   │   ├─ interfaces/
+│   │   └─ local/
+│   ├─ stores/
+│   │   ├─ theme_store.dart
+│   │   └─ todo_store.dart
+│   └─ widgets/
+│       ├─ app_nav.dart
+│       ├─ errors.dart
+│       └─ models.dart
 │
-├─ screens/
-│   ├─ home.dart
-│   ├─ todo_form.dart
-│   └─ settings.dart
+├─ firebase_options.dart
+├─ main.dart
 │
-├─ widgets/
-│   └─ navigation_rail.dart
-│
-├─ models/
-│   └─ todo.dart
-│
-└─ main.dart
+test/
+integration_test/
+web/
 ```
+
+---
+
+## 🔧 Technologies utilisées
+
+| Fonction | Tech utilisée |
+|---------|---------------|
+| Authentification | Firebase Auth |
+| Stockage local des tâches | Store local custom |
+| Gestion d'état | Provider + ChangeNotifier |
+| Navigation | GoRouter |
+| Persistance thème | SharedPreferences |
+| UI | Material 3 |
+| Responsive | NavigationRail + mise en page web/mobile |
+
+---
 
 ## 🚀 Lancer l’application
 
@@ -79,30 +108,25 @@ Pour le Web :
 flutter run -d chrome
 ```
 
+---
+
 ## 👥 Travail en équipe (3 développeurs)
 
 ### Dev A — Authentification  
-- Login / logout  
-- Gestion de l’état utilisateur  
-- Redirection SignIn → Home  
+- Auth Firebase  
+- Pages sign_in, sign_up, reset_password  
+- store auth  
+- Redirections connexion/déconnexion  
 
 ### Dev B — Tâches  
 - Modèle Todo  
-- CRUD complet  
-- Écran Home / Detail / Form  
-- Fonction Toggle + Swipe Delete  
+- todo_store (CRUD)  
+- home.dart + todo_form.dart  
+- Toggle done + suppression Dismissible  
 
-### Dev C — UI & Navigation  
-- Thème clair / sombre  
-- NavigationRail  
+### Dev C — UI / Thème / Navigation  
 - Material 3  
-- Refactor / cohérence visuelle
-
-## 🧩 Points forts du projet
-- NavigationRail moderne  
-- UI Material 3  
-- Architecture propre  
-- Code maintenable
-
-## 🏁 Conclusion  
-Projet complet, moderne et structuré, respectant toutes les consignes EFREI.
+- Thème clair/sombre persistant  
+- SharedPreferences  
+- NavigationRail partout  
+- GoRouter + cohérence design  
