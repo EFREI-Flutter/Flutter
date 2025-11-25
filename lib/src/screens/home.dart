@@ -98,8 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   _HeaderSummary(
                                     total: store.todos.length,
-                                    done:
-                                        store.todos.where((t) => t.isDone).length,
+                                    done: store.todos
+                                        .where((t) => t.isDone)
+                                        .length,
                                   ),
                                   const SizedBox(height: 12),
                                   ...store.todos.map(
@@ -109,7 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       background: Container(
                                         alignment: Alignment.centerRight,
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 24),
+                                          horizontal: 24,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: Colors.red.shade400,
                                           borderRadius:
@@ -120,8 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           color: Colors.white,
                                         ),
                                       ),
-                                      onDismissed: (_) =>
-                                          store.delete(t.id),
+                                      onDismissed: (_) => store.delete(t.id),
                                       child: Card(
                                         child: InkWell(
                                           borderRadius:
@@ -154,9 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ),
                                               ),
                                               subtitle: (t.notes == null ||
-                                                      t.notes!
-                                                          .trim()
-                                                          .isEmpty)
+                                                      t.notes!.trim().isEmpty)
                                                   ? null
                                                   : Text(
                                                       t.notes!,
@@ -224,7 +223,7 @@ class _EmptyState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Crée ta première tâche pour commencer à organiser ta journée.',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -270,9 +269,9 @@ class _HeaderSummary extends StatelessWidget {
                 color: cs.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.checklist_rounded,
-                color: cs.primary,
+                color: Colors.white,
               ),
             ),
             const SizedBox(width: 16),

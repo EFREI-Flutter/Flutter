@@ -110,15 +110,18 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
           Expanded(
             child: Scaffold(
               appBar: AppBar(
-                title:
-                    Text(isEditing ? 'Modifier la tâche' : 'Nouvelle tâche'),
+                title: Text(
+                  isEditing ? 'Modifier la tâche' : 'Nouvelle tâche',
+                ),
               ),
               body: loading
                   ? const Center(child: CircularProgressIndicator())
                   : SafeArea(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 16),
+                          horizontal: 24,
+                          vertical: 16,
+                        ),
                         child: Center(
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(maxWidth: 500),
@@ -149,7 +152,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                                           Padding(
                                             padding:
                                                 const EdgeInsets.only(top: 14),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.notes_outlined,
                                               size: 22,
                                               color: Colors.grey,
@@ -161,8 +164,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                                               controller: notes,
                                               minLines: 3,
                                               maxLines: 6,
-                                              decoration:
-                                                  const InputDecoration(
+                                              decoration: const InputDecoration(
                                                 labelText: 'Notes',
                                                 alignLabelWithHint: true,
                                               ),
@@ -176,8 +178,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                                           Expanded(
                                             child: ElevatedButton(
                                               onPressed: _save,
-                                              child:
-                                                  const Text('Enregistrer'),
+                                              child: const Text('Enregistrer'),
                                             ),
                                           ),
                                           if (isEditing) ...[
@@ -185,12 +186,12 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                                             Expanded(
                                               child: ElevatedButton(
                                                 onPressed: _delete,
-                                                style: ElevatedButton.styleFrom(
+                                                style:
+                                                    ElevatedButton.styleFrom(
                                                   backgroundColor: Colors.red,
                                                   foregroundColor: Colors.white,
                                                 ),
-                                                child:
-                                                    const Text('Supprimer'),
+                                                child: const Text('Supprimer'),
                                               ),
                                             ),
                                           ],
