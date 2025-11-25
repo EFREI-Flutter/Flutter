@@ -84,14 +84,14 @@ class _SignInScreenState extends State<SignInScreen> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          "Retrouve tes tâches depuis n'importe où.",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 14,
-                          ),
-                        ),
+                        // Text(
+                        //   "Retrouve tes tâches depuis n'importe où.",
+                        //   textAlign: TextAlign.center,
+                        //   style: TextStyle(
+                        //     color: Colors.grey.shade600,
+                        //     fontSize: 14,
+                        //   ),
+                        // ),
                         const SizedBox(height: 24),
                         TextFormField(
                           controller: email,
