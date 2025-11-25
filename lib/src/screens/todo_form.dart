@@ -149,10 +149,10 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Padding(
+                                          const Padding(
                                             padding:
-                                                const EdgeInsets.only(top: 14),
-                                            child: const Icon(
+                                                EdgeInsets.only(top: 14),
+                                            child: Icon(
                                               Icons.notes_outlined,
                                               size: 22,
                                               color: Colors.grey,
